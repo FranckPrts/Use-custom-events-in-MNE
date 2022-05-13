@@ -1,0 +1,100 @@
+# THESE ARE SOC CHANNELS
+
+**parent channels**
+1 - 1-Fp1 
+2 - 1-AF3 
+3 - 1-F7 
+4 - 1-F3 
+5 - 1-FC1 
+6 - 1-FC5 
+7 - 1-T7 
+8 - 1-C3 
+9 - 1-CP1 
+10 - 1-CP5 
+11 - 1-P7 
+12 - 1-P3 
+13 - 1-Pz 
+14 - 1-PO3 
+15 - 1-O1 
+16 - 1-Oz 
+17 - 1-O2 
+18 - 1-PO4 
+19 - 1-P4 
+20 - 1-P8 
+21 - 1-CP6 
+22 - 1-CP2 
+23 - 1-C4 
+24 - 1-T8 
+25 - 1-FC6 
+26 - 1-FC2 
+27 - 1-F4 
+28 - 1-F8 
+29 - 1-AF4 
+30 - 1-Fp2 
+31 - 1-Fz 
+32 - 1-Cz 
+33 - 1-EXG1 - vEOG
+34 - 1-EXG2  -hEOG
+35 - 1-EXG3 -left mastoid
+36 - 1-EXG4 -right mastoid
+37 - 1-EXG5 -blank
+38 - 1-EXG6 -blank
+39 - 1-EXG7 -blank
+40 - 1-EXG8 -blank
+41 - 1-GSR1 -blank 
+42 - 1-GSR2 -blank
+43 - 1-Erg1 -accelerometer
+44 - 1-Erg2 -accelerometer
+45 - 1-Resp -blank
+46 - 1-Plet -blank
+47 - 1-Temp -blank
+
+**child channels**
+48 - 2-Fp1 
+49 - 2-AF3 
+50 - 2-F7 
+51 - 2-F3 
+52 - 2-FC1 
+53 - 2-FC5 
+54 - 2-T7 
+55 - 2-C3 
+56 - 2-CP1 
+57 - 2-CP5 
+58 - 2-P7 
+59 - 2-P3 
+60 - 2-Pz 
+61 - 2-PO3 
+62 - 2-O1 
+63 - 2-Oz 
+64 - 2-O2 
+65 - 2-PO4 
+66 - 2-P4 
+67 - 2-P8 
+68 - 2-CP6 
+69 - 2-CP2 
+70 - 2-C4 
+71 - 2-T8 
+72 - 2-FC6 
+73 - 2-FC2 
+74 - 2-F4 
+75 - 2-F8 
+76 - 2-AF4 
+77 - 2-Fp2 
+78 - 2-Fz 
+79 - 2-Cz 
+80 - 2-EXG1 -blank (note: no mastoid/EOG for child)
+81 - 2-EXG2 -blank
+82 - 2-EXG3 -blank
+83 - 2-EXG4 -blank
+84 - 2-EXG5 -blank
+85 - 2-EXG6 -blank
+86 - 2-EXG7 -blank
+87 - 2-EXG8 -blank
+88 - 2-GSR1 -blank
+89 - 2-GSR2 -blank
+90 - 2-Erg1 - accelerometer
+91 - 2-Erg2 -accelerometer
+92 - 2-Resp -blank
+93 - 2-Plet -blank
+94 - 2-Temp -blank
+95 - Status (added by BioSemi)
