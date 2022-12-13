@@ -16,9 +16,9 @@ save_path    = "../../W2W-save/"
 
 #%%
 # run this for interactive plots
-# %matplotlib qt
+%matplotlib qt
 # run this for static plots
-%matplotlib inline 
+# %matplotlib inline 
 
 #%%
 all_file = os.listdir(data_path) 
@@ -30,7 +30,6 @@ except:
 #%%
 # Get unique dyad number for a given context
 context = 'movie' # form book puzzle movie
-ibc_metric = 'plv'
 
 dyad_nb=[]
 for i in all_file:
@@ -48,7 +47,10 @@ dyad_nb = np.unique(dyad_nb)
 # we can prioritize P3 and P4. 
 
 # Second priority would be Power Correlation in those same electrodes. 
+# Hypyp documentation https://hypyp.readthedocs.io/en/latest/
 
+
+ibc_metric = 'plv'
 selected_chans = ['P3', 'Pz', 'P4', 'C3', 'C4', 'P03', 'P04']
 n_ch = len(selected_chans)
 freq_bands = {'Theta': [8.0, 9.0]}
@@ -99,7 +101,7 @@ for dyad in dyad_nb:
     epo_2.rename_channels(replace_ch_name)
 
     # Now we only keep the channels that are of interest
-    selected_ch = set(epo_1.ch_names).difference(set(['P3', 'Pz', 'P4', 'C3', 'C4', 'P03', 'P04']))
+    selected_ch = set(epo_1.ch_names).difference(set(selected_chans))
     
     epo_1 = epo_1.copy().drop_channels(selected_ch)
     epo_2 = epo_2.copy().drop_channels(selected_ch)
@@ -153,9 +155,15 @@ for i in results_IBC.keys():
 # %%
 summarize_IBC = pd.DataFrame(columns=['dyad_id','IBC'])
 
-for i in results_IBC.keys():
-    summarize_IBC.loc[len(summarize_IBC)] =[i, results_IBC[i].mean()]
+###################################X
+# Do electrods seps    ############X
+# Run with power corr  ############X
+###################################X
 
+for i in results_IBC.keys():
+    summarize_IBC.loc[len(summarize_IBC)] =[i, results_IBC[i].mean()] 
+
+#%%
 summarize_IBC.to_csv('{}W2W-IBC_results/IBC_results_{}.csv'.format(
     save_path, context), sep=',')
 # %%
