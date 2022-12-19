@@ -63,6 +63,9 @@ results_IBC = {}
 # If we want to setup so the resutls are stored in a np.array we can do the folowing:
 # results_IBC = np.zeros([nb_of_dyad, nb_freq_band, n_ch*2, n_ch*2], dtype=np.float32)
 
+# Create a list to keep a record of the channel order 
+ch_order = []
+
 #%% Initializing droplog df for files with continuous data and those who don't have 'vEOG', 'hEOG', 'A1', 'A2'
 non_epoch_dyads  = []
 no_dropChan_dyads = []
@@ -123,6 +126,8 @@ for dyad in dyad_nb:
             print("\nVerify equal epoch count: ")
             mne.epochs.equalize_epoch_counts([epo_1, epo_2])
 
+            ch_order = epo_1.ch_names
+
             ##################### 
             # The commented block below would be used to reject chs in
             # in a participant that are not present in the other, and vice versa.
@@ -165,7 +170,9 @@ for dyad in dyad_nb:
 
             results_IBC[dyad] = result
 
-            del epo, epo_1, epo_2, sub1_chan, sub2_chan, replace_ch_name, data_inter, complex_signal, result
+            #del epo, epo_1, epo_2, sub1_chan, sub2_chan, replace_ch_name, data_inter, complex_signal, result
+            
+            
 
         except:
             no_dropChan_dyads.append(dyad)
@@ -182,17 +189,57 @@ for i in results_IBC.keys():
     print(results_IBC[i].shape)
     # the shape should be (number of frequency band, selected sensors x 2, selected sensors x 2)
 
-# %%
-summarize_IBC = pd.DataFrame(columns=['dyad_id','IBC'])
+# %% Store data
 
 ###################################X
-# Do electrods seps    ############X
-# Run with power corr  ############X
+# Run with power corr  ############X 
 ###################################X
 
+
+def get_ch_idx(soi:list(), n_ch:int(), quadrant:str()):
+    '''
+    Returns a tool to slice a IBC matrix by providing channel idx.
+    CAREFUL: This versions assumes that you're using an IBC metric
+    that is non-directional.
+    '''
+    assert quadrant in ['inter', 'intra_A', 'intra_B'], "Quadrant is wrong"
+
+    cut1, cut2 = soi, soi
+
+    if quadrant == 'inter':
+        cut2 = [x+n_ch for x in cut2]
+    elif quadrant == 'intra_A':
+        pass # The idx already indicate these locs
+    elif quadrant == 'intra_B':
+        cut1 = [x+n_ch for x in cut1]
+        cut2 = [x+n_ch for x in cut2]   
+    
+    cut = np.ix_(cut1, cut2)
+    return cut
+    
+#%% Slice teh IBC matrix to get IBC between pairs of the same sensors
+    # E.g., FP1 of sub-1 with FP1 of sub-2 
+
+# Create an empty dataframe to store the IBC value (mean, and per)
+summarize_IBC = pd.DataFrame(columns=ch_order)
+
+# for dyad in ['2023']:
 for dyad in results_IBC.keys():
-    summarize_IBC.loc[len(summarize_IBC)] =[dyad, results_IBC[dyad].mean()] 
+    for chan_idx, chan_name in enumerate(ch_order):
+        
+        # Here we give the index of the sensor(s) of interest
+        cut = get_ch_idx(soi=[chan_idx], n_ch=len(ch_order), quadrant='inter')
+        summarize_IBC.loc[dyad, chan_name] = results_IBC[dyad][0][cut[0], cut[1]].mean()
 
-#%%
-summarize_IBC.to_csv('{}W2W-IBC_results/IBC_results_{}_allChsAverage.csv'.format(
-    save_path, context), sep=',')
+# Add a mean column
+summarize_IBC['IBC_average'] = summarize_IBC.mean(axis=1)
+
+# Add the index as a column 
+summarize_IBC.reset_index(inplace=True)
+summarize_IBC = summarize_IBC.rename(columns = {'index':'Dyads'})
+
+summarize_IBC
+
+#%% Save the data
+summarize_IBC.to_csv('{}W2W-IBC_results/IBC_results_{}_{}.csv'.format(
+    save_path, context, ibc_metric), sep=',')
