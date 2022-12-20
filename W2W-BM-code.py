@@ -44,20 +44,8 @@ n_ch = len(selected_chans)
 freq_bands = {'Theta': [8.0, 9.0]}
 nb_freq_band = len(freq_bands.keys())
 
-#%% Create the dict where the IBC will be stored
-
-results_IBC = {}
-
 # If we want to setup so the resutls are stored in a np.array we can do the folowing:
 # results_IBC = np.zeros([nb_of_dyad, nb_freq_band, n_ch*2, n_ch*2], dtype=np.float32)
-
-# Create a list to keep a record of the channel order 
-ch_order = []
-
-#%% Initializing droplog df for files with continuous data and those who don't have 'vEOG', 'hEOG', 'A1', 'A2'
-non_epoch_dyads  = []
-no_dropChan_dyads = []
-
 
 # Define a function to slice IBC matrix
 def get_ch_idx(soi:list(), n_ch:int(), quadrant:str()):
@@ -84,9 +72,21 @@ def get_ch_idx(soi:list(), n_ch:int(), quadrant:str()):
 #%% Set up context 
 context = ['form' ,'book', 'puzzle', 'movie']
 
+tt=open('{}DROP-ERR-LOG.txt'.format(save_path),'w')
+
 #%% Run the analysis 
 
 for cont in context:
+
+    # Create the dict where the IBC will be stored
+    results_IBC = {}
+    
+    # Create a list to keep a record of the channel order 
+    ch_order = []
+
+    # Initializing droplog df for files with continuous data and those who don't have 'vEOG', 'hEOG', 'A1', 'A2'
+    non_epoch_dyads  = []
+    no_dropChan_dyads = []
 
     # Get unique dyad number for a given context
     dyad_nb=[]
@@ -98,6 +98,7 @@ for cont in context:
     dyad_nb = np.unique(dyad_nb)
     nb_of_dyad = len(dyad_nb)
 
+
     for dyad in dyad_nb:
 
         try: 
@@ -107,10 +108,6 @@ for cont in context:
             # and don't proceed with the file. 
             epo = mne.read_epochs_eeglab('{}W2W_{}_{}_hpfilt_chlocs_childinterp_parentinterp_binned_runICA_componentsremoved_childAR_parentAR_selectedepochs.set'.format(
             data_path, dyad, cont))
-
-            print('{}W2W_{}_{}_hpfilt_chlocs_childinterp_parentinterp_binned_runICA_componentsremoved_childAR_parentAR_selectedepochs.set'.format(
-            data_path, dyad, cont))
-            
 
             try:
                 # Second, we try to drop non-necessary channels 
@@ -195,17 +192,16 @@ for cont in context:
 
                 results_IBC[dyad] = result
 
-                #del epo, epo_1, epo_2, sub1_chan, sub2_chan, replace_ch_name, data_inter, complex_signal, result, dyad_nb
-                
-                
+                del epo, epo_1, epo_2, sub1_chan, sub2_chan, replace_ch_name, data_inter, complex_signal, result
 
-            except:
+            except Exception as e:
                 no_dropChan_dyads.append(dyad)
+                tt.write('{}\t{}\t{}\n'.format(e, cont, dyad))
         except:
             non_epoch_dyads.append(dyad)
 
     # Save the droplog
-    with open('{}W2W-IBC_droplog/{}_droplog.txt'.format(save_path, cont), 'w') as f:
+    with open('{}W2W-IBC_droplog/{}_{}_droplog.txt'.format(save_path, cont, ibc_metric), 'w') as f:
         f.write('In context {}, non_epoch_dyads are {}, no_dropChan_dyads are {}'.format(cont, non_epoch_dyads, no_dropChan_dyads))
     f.close()
 
@@ -216,7 +212,7 @@ for cont in context:
 
     # Store data
 
-    # Slice teh IBC matrix to get IBC between pairs of the same sensors
+    # Slice the IBC matrix to get IBC between pairs of the same sensors
         # E.g., FP1 of sub-1 with FP1 of sub-2 
 
     # Create an empty dataframe to store the IBC values
@@ -242,5 +238,8 @@ for cont in context:
     # Save the data
     summarize_IBC.to_csv('{}W2W-IBC_results/IBC_results_{}_{}.csv'.format(
         save_path, cont, ibc_metric), sep=',')
-    print
+    
+    del summarize_IBC, results_IBC
+
+tt.close()
 # %%
