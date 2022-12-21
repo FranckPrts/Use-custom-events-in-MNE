@@ -38,7 +38,7 @@ except:
 
 # Second priority would be Power Correlation in those same electrodes. 
 
-ibc_metric = 'pow_corr' # 'plv' Hypyp documentation https://hypyp.readthedocs.io/en/latest/
+ibc_metric = 'plv' # 'pow_corr' Hypyp documentation https://hypyp.readthedocs.io/en/latest/
 selected_chans = ['P3', 'Pz', 'P4', 'C3', 'C4', 'P03', 'P04']
 n_ch = len(selected_chans)
 freq_bands = {'Theta': [8.0, 9.0]}
@@ -176,9 +176,9 @@ for cont in context:
                 # Computing analytic signal per frequency band ################################################
                 print("- - - - > Computing analytic signal per frequency band ...")
                 complex_signal = hypyp.analyses.compute_freq_bands(data_inter, sampling_rate, freq_bands)
-                np.save("{}W2W-complex_signal/{}_{}_complexsignal.npy".format(
-                    save_path, dyad, cont),
-                    complex_signal, allow_pickle=False)  
+                # np.save("{}W2W-complex_signal/{}_{}_complexsignal.npy".format(
+                #     save_path, dyad, cont),
+                #     complex_signal, allow_pickle=False)  
                     # Save df as .nyp
 
                 # Computing frequency- and time-frequency-domain connectivity ################################
@@ -196,9 +196,10 @@ for cont in context:
 
             except Exception as e:
                 no_dropChan_dyads.append(dyad)
-                tt.write('{}\t{}\t{}\n'.format(e, cont, dyad))
-        except:
+                tt.write('In dropchannels {}\t{}\t{}\n'.format(cont, dyad, e))
+        except Exception as e:
             non_epoch_dyads.append(dyad)
+            tt.write('In epochload {}\t{}\t{}\n'.format(cont, dyad, e))
 
     # Save the droplog
     with open('{}W2W-IBC_droplog/{}_{}_droplog.txt'.format(save_path, cont, ibc_metric), 'w') as f:
@@ -237,7 +238,7 @@ for cont in context:
 
     # Save the data
     summarize_IBC.to_csv('{}W2W-IBC_results/IBC_results_{}_{}.csv'.format(
-        save_path, cont, ibc_metric), sep=',')
+        save_path, cont, ibc_metric), sep=',', index=False)
     
     del summarize_IBC, results_IBC
 
